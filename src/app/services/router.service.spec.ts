@@ -1443,14 +1443,17 @@ describe('RouterService', () => {
 
     it('should handle truthy', () => {
       expect(
-        service.zipDiffDisplayRate(DisplayRate.PerSecond, undefined),
+        service.zipDiffDisplayRate(DisplayRate.PerTick, undefined),
       ).toEqual('0');
       expect(
-        service.zipDiffDisplayRate(DisplayRate.PerMinute, undefined),
+        service.zipDiffDisplayRate(DisplayRate.PerSecond, undefined),
       ).toEqual('1');
       expect(
-        service.zipDiffDisplayRate(DisplayRate.PerHour, undefined),
+        service.zipDiffDisplayRate(DisplayRate.PerMinute, undefined),
       ).toEqual('2');
+      expect(
+        service.zipDiffDisplayRate(DisplayRate.PerHour, undefined),
+      ).toEqual('3');
     });
   });
 
@@ -1626,9 +1629,10 @@ describe('RouterService', () => {
     });
 
     it('should parse value', () => {
-      expect(service.parseDisplayRate('0')).toEqual(DisplayRate.PerSecond);
-      expect(service.parseDisplayRate('1')).toEqual(DisplayRate.PerMinute);
-      expect(service.parseDisplayRate('2')).toEqual(DisplayRate.PerHour);
+      expect(service.parseDisplayRate('0')).toEqual(DisplayRate.PerTick);
+      expect(service.parseDisplayRate('1')).toEqual(DisplayRate.PerSecond);
+      expect(service.parseDisplayRate('2')).toEqual(DisplayRate.PerMinute);
+      expect(service.parseDisplayRate('3')).toEqual(DisplayRate.PerHour);
     });
 
     it('should return null if unrecognized', () => {

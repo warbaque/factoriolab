@@ -1693,12 +1693,14 @@ export class RouterService {
     if (value === init) return '';
 
     switch (value) {
-      case DisplayRate.PerSecond:
+      case DisplayRate.PerTick:
         return '0';
-      case DisplayRate.PerMinute:
+      case DisplayRate.PerSecond:
         return '1';
-      case DisplayRate.PerHour:
+      case DisplayRate.PerMinute:
         return '2';
+      case DisplayRate.PerHour:
+        return '3';
       default:
         return NULL;
     }
@@ -1827,10 +1829,12 @@ export class RouterService {
 
     switch (value) {
       case '0':
-        return DisplayRate.PerSecond;
+        return DisplayRate.PerTick;
       case '1':
-        return DisplayRate.PerMinute;
+        return DisplayRate.PerSecond;
       case '2':
+        return DisplayRate.PerMinute;
+      case '3':
         return DisplayRate.PerHour;
       default:
         return undefined;

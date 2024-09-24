@@ -288,6 +288,18 @@
                   </i>
                 }
               </div>
+              @if (step.itemId && data().itemEntities[step.itemId]; as item) {
+                <span>
+                  {{ item.name }}
+                </span>
+              } @else {
+                @if (
+                  step.recipeId && data().recipeEntities[step.recipeId];
+                  as recipe
+                ) {
+                  <span style="white-space: nowrap">{{ recipe.name }}</span>
+                }
+              }
             </div>
           </td>
         }
@@ -306,9 +318,6 @@
           </td>
           <td class="ps-0">
             <div class="d-flex align-items-center">
-              <span class="find-text">{{
-                data().itemEntities[step.itemId].name
-              }}</span>
               @if (
                 !preferences().hideDuplicateIcons || !columnsState().tree.show
               ) {
@@ -575,91 +584,45 @@
           <td class="ps-0">
             @if (step.recipeId && step.recipe && step.recipeSettings) {
               <div class="d-flex align-items-center">
-                <span class="find-text">{{ step.recipe.name }}</span>
-                @if (
-                  !preferences().hideDuplicateIcons ||
-                  (step.itemId != null && step.itemId !== step.recipeId)
-                ) {
-                  <button
-                    pButton
-                    pRipple
-                    type="button"
-                    class="hover-action p-button-text"
-                    [pTooltip]="tooltip"
-                    (click)="
-                      addObjective({
-                        targetId: step.recipeId,
-                        unit: ObjectiveUnit.Machines
-                      })
-                    "
+                <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="hover-action p-button-text"
+                  [pTooltip]="tooltip"
+                  (click)="
+                    addObjective({
+                      targetId: step.recipeId,
+                      unit: ObjectiveUnit.Machines
+                    })
+                  "
+                >
+                  <span
+                    class="p-button-icon"
+                    [class]="step.recipeId | iconSmClass: 'recipe'"
                   >
-                    <span
-                      class="p-button-icon"
-                      [class]="step.recipeId | iconSmClass: 'recipe'"
-                    >
-                      @if (step.recipeObjectiveId) {
-                        <span>#{{ step.recipeObjectiveId }}</span>
-                      }
-                    </span>
-                    <i class="hover-icon fa-solid fa-circle-plus"></i>
-                    <ng-template #tooltip>
-                      <lab-tooltip
-                        [id]="step.recipeId"
-                        type="recipe"
-                      ></lab-tooltip>
-                    </ng-template>
-                  </button>
-                }
-                @if (machineId | machineShow: data().game) {
-                  <p-dropdown
-                    labDropdownBase="icon"
-                    [pTooltip]="tooltip"
-                    [options]="
-                      step.recipe.producers | options: data().itemEntities
-                    "
-                    [ngModel]="machineId"
-                    (onChange)="
-                      changeRecipeField(
-                        step,
-                        $event.value,
-                        machinesState(),
-                        data(),
-                        RecipeField.Machine
-                      )
-                    "
-                  >
-                    <ng-template pTemplate="selectedItem" let-item>
-                      @if (item) {
-                        <div class="d-flex">
-                          <i [class]="item.value | iconSmClass"></i>
-                        </div>
-                      }
-                    </ng-template>
-                    <ng-template pTemplate="item" let-item>
-                      <div
-                        class="d-flex align-items-center py-2 w-100 h-100"
-                        [pTooltip]="tooltip"
-                      >
-                        <i [class]="item.value | iconSmClass"></i>
-                        <div class="ms-3 text-truncate">
-                          {{ item.label }}
-                        </div>
-                        <ng-template #tooltip>
-                          <lab-tooltip
-                            [id]="item.value"
-                            type="machine"
-                          ></lab-tooltip>
-                        </ng-template>
-                      </div>
-                    </ng-template>
-                    <ng-template #tooltip>
-                      <lab-tooltip
-                        [id]="machineId"
-                        type="machine"
-                      ></lab-tooltip>
-                    </ng-template>
-                  </p-dropdown>
-                }
+                    @if (step.recipeObjectiveId) {
+                      <span>#{{ step.recipeObjectiveId }}</span>
+                    }
+                  </span>
+                  <i class="hover-icon fa-solid fa-circle-plus"></i>
+                  <ng-template #tooltip>
+                    <lab-tooltip
+                      [id]="step.recipeId"
+                      type="recipe"
+                    ></lab-tooltip>
+                  </ng-template>
+                </button>
+                <span
+                  style="
+                    width: 60em;
+                    white-space: nowrap;
+                    mask-image: linear-gradient(90deg, #000 80%, transparent);
+                    overflow: hidden;
+                  "
+                  >{{ step.recipe.name }}</span
+                >
+
                 @if (data().game === Game.Satisfactory) {
                   <p-inputNumber
                     #overclockInput
@@ -1966,64 +1929,25 @@
     >
       @if (columnSettings.show) {
         <td class="w-0 text-end inherit">
-          @for (tot of totals | keyvalue: trackSvc.sortByValue; track tot.key) {
-            <div class="py-2 icon-height">
-              <span class="monospace">{{
-                tot.value | rate: columnSettings.precision
-              }}</span>
-            </div>
-          }
-        </td>
-        <td class="ps-0 inherit">
-          <div class="d-flex">
-            <div class="d-flex flex-column justify-content-center">
-              @for (
-                tot of totals | keyvalue: trackSvc.sortByValue;
-                track tot.key
-              ) {
-                @if (data().itemEntities[tot.key]) {
-                  <i
-                    class="d-block"
-                    [class]="tot.key | iconClass"
-                    [pTooltip]="tooltip"
-                  >
-                    <ng-template #tooltip>
-                      <lab-tooltip [id]="tot.key" [type]="type"></lab-tooltip>
-                    </ng-template>
-                  </i>
-                } @else {
-                  <i
-                    class="d-block"
-                    [class]="tot.key | iconClass: 'recipe'"
-                    [pTooltip]="tooltip"
-                  >
-                    <ng-template #tooltip>
-                      <lab-tooltip [id]="tot.key" type="recipe"></lab-tooltip>
-                    </ng-template>
-                  </i>
-                }
-              }
-            </div>
-            <div class="modules-column">
-              @for (
-                tot of modulesTotals | keyvalue: trackSvc.sortByValue;
-                track tot.key
-              ) {
-                <div class="p-2 icon-height text-end">
-                  <span class="monospace">{{ tot.value }}</span>
-                </div>
-                <i
-                  class="d-block"
-                  [class]="tot.key | iconClass: 'item'"
-                  [pTooltip]="tot.key !== 'module' ? tooltip : undefined"
-                >
-                  <ng-template #tooltip>
-                    <lab-tooltip [id]="tot.key" type="module"></lab-tooltip>
-                  </ng-template>
-                </i>
-              }
-            </div>
-          </div>
+          <table>
+            @for (
+              tot of totals | keyvalue: trackSvc.sortByValue;
+              track tot.key
+            ) {
+              <tr>
+                <td>
+                  <span class="monospace">{{
+                    tot.value | rate: columnSettings.precision
+                  }}</span>
+                </td>
+                <td style="text-align: left">
+                  <span class="monospace">{{
+                    data().itemEntities[tot.key].name
+                  }}</span>
+                </td>
+              </tr>
+            }
+          </table>
         </td>
       }
     </ng-template>

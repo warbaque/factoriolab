@@ -23,8 +23,8 @@ export class DisplayService {
 
   usage(value: Rational | string | number): string {
     if (!(value instanceof Rational)) value = rational(value);
-    if (value.abs().lt(rational(1000n))) return `${this.round(value)} kW`;
-    return `${this.round(value.div(rational(1000n)))} MW`;
+    if (value.abs().lt(rational(1000n))) return `${this.round(value)} EU/t`;
+    return `${this.round(value.div(rational(1000n)))} kEU/t`;
   }
 
   toBonusPercent(value: Rational): string {

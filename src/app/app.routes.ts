@@ -47,6 +47,10 @@ export const routes: Routes = [
     redirectTo: '/?s=ffy&v=9',
   },
   {
+    path: 'minecraft-statech-industry',
+    redirectTo: '/?s=mcsi&v=9',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

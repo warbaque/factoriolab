@@ -29,6 +29,8 @@
       "link": "Link"
     },
     "displayRate": {
+      "perTick": "Units per tick",
+      "perTickSuffix": "/t",
       "perSecond": "Units per second",
       "perSecondSuffix": "/s",
       "perMinute": "Units per minute",
@@ -42,7 +44,8 @@
       "satisfactory": "Satisfactory",
       "captainOfIndustry": "Captain of Industry",
       "techtonica": "Techtonica",
-      "finalFactory": "Final Factory"
+      "finalFactory": "Final Factory",
+      "statechIndustry": "Statech Industry"
     },
     "inserterCapacity": {
       "capacity0": "No capacity bonus",
@@ -74,14 +77,17 @@
       "proliferated": "Proliferated"
     },
     "objectiveUnit": {
+      "itemsPerTick": "Items/t",
       "itemsPerSecond": "Items/s",
       "itemsPerMinute": "Items/m",
       "itemsPerHour": "Items/h",
       "belts": "Belts",
+      "wagonsPerTick": "Wagons/t",
       "wagonsPerSecond": "Wagons/s",
       "wagonsPerMinute": "Wagons/m",
       "wagonsPerHour": "Wagons/h",
       "machines": "Machines",
+      "pollutionPerTick": "Pollution/t",
       "pollutionPerSecond": "Pollution/s",
       "pollutionPerMinute": "Pollution/m",
       "pollutionPerHour": "Pollution/h"
@@ -119,9 +125,9 @@
     },
     "powerUnit": {
       "auto": "Auto",
-      "kW": "kW",
-      "MW": "MW",
-      "GW": "GW"
+      "kW": "EU/t",
+      "MW": "kEU/t",
+      "GW": "MEU/t"
     },
     "sankeyAlign": {
       "justify": "Justify",

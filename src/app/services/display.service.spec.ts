@@ -32,9 +32,9 @@ describe('DisplayService', () => {
 
   describe('power', () => {
     it('should convert Rational, string, or numbers to power units', () => {
-      expect(service.usage('0.3')).toEqual('0.3 kW');
-      expect(service.usage(3000)).toEqual('3 MW');
-      expect(service.usage(rational(1n))).toEqual('1 kW');
+      expect(service.usage('0.3')).toEqual('0.3 EU/t');
+      expect(service.usage(3000)).toEqual('3 kEU/t');
+      expect(service.usage(rational(1n))).toEqual('1 EU/t');
     });
   });
 

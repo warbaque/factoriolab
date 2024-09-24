@@ -61,4 +61,12 @@ export const gameInfo: Record<Game, GameInfo> = {
     modId: 'tta',
     hideColumns: ['beacons', 'pollution', 'wagons'],
   },
+  [Game.StatechIndustry]: {
+    icon: 'statech-industry',
+    route: 'statech-industry',
+    label: 'options.game.statechIndustry',
+    meta: 'Statech Industry',
+    modId: 'mcsi',
+    hideColumns: ['beacons', 'belts', 'wagons', 'pollution'],
+  },
 };

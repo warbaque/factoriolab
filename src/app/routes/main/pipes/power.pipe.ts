@@ -15,14 +15,14 @@ export class PowerPipe implements PipeTransform {
         return `${RatePipe.transform(
           value.div(rational(1000000n)),
           precision,
-        )} GW`;
+        )} MEU/t`;
       case PowerUnit.MW:
         return `${RatePipe.transform(
           value.div(rational(1000n)),
           precision,
-        )} MW`;
+        )} kEU/t`;
       default:
-        return `${RatePipe.transform(value, precision)} kW`;
+        return `${RatePipe.transform(value, precision)} EU/t`;
     }
   }
 }

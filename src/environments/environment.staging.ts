@@ -6,6 +6,6 @@ export const environment: Environment = {
   production: true,
   testing: false,
   debug: false,
-  baseHref: '/staging/',
+  baseHref: '/temp/minecraft/factoriolab/',
   version: `${pkg.version} (staging)`,
 };

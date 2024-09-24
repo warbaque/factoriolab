@@ -26,6 +26,8 @@ def sum_tuples_by_key(keys, values):
             d[k] += v
     return dict(d)
 
+with open("factorio_icons.json") as f:
+    icons = json.load(f);
 
 #=====[TAGS]=========================================================
 
@@ -88,7 +90,8 @@ recipe_data_out = {
     'icons'         : [],
     'items'         : [],
     'recipes'       : [],
-    'limitations'   : {}
+    'limitations'   : {},
+    'defaults'      : {"excludedRecipes": []},
 }
 
 ignore = {
@@ -105,33 +108,62 @@ auto_overclock = (
 class RecipeList:
     def __init__(self):
         self.recipes = []
+        self.fluids = set()
 
-    def add(self, recipe_type, inputs, outputs, power=0, duration_multiplier=None, optional={}):
+    def add(self, recipe_type, inputs, outputs, energy=0, time=None, exclude=False):
+        proper_id = lambda x: x.replace('_', '-')
+        item_ids = lambda d: {proper_id(k): v for k, v in d.items()}
         recipe_type = recipe_type.replace(':', '__')
+
+        icon = {
+            "modern_industrialization__nuclear_reactor": "nuclear-power",
+            "modern_industrialization__fusion_reactor": "rocket-part",
+        }.get(recipe_type, "automation-2")
+        icon_text = "R"
+
         inputs = {k.replace(':', '__'): v for k, v in inputs.items()}
         outputs = {k.replace(':', '__'): v for k, v in outputs.items()}
-        names_long = lambda d: '+'.join(x for x in d.keys())
         names = lambda d: '+'.join(x.split('__')[-1] for x in d.keys())
-        recipe_id = f"{recipe_type}_{names_long(outputs)}_from_{names_long(inputs)}"
+        recipe_id = f"R-{len(self.recipes)}"
         recipe_name = f"({recipe_type.split('__')[-1]}) {names(outputs)}_from_{names(inputs)}"
-        if duration_multiplier == None:
-            duration_multiplier = 1 if (recipe_type in auto_overclock) else max(ceil(power / (128*64+32)), 1)
+        if time == None:
+            time = 1
+            #time = 1 if (recipe_type in auto_overclock) else max(ceil(energy / (128*64+32)), 1)
+            multiplier = ceil(energy / (128*64+32))
+            if (recipe_type not in auto_overclock) and multiplier > 1:
+                icon = "automation-3"
+                icon_text = str(multiplier)
+
+        cost = {
+            "modern_industrialization__packer": 0.05,
+        }.get(recipe_type)
+        extra_cost = {"cost": cost} if cost else {}
 
         self.recipes.append({
-            "category"  : recipe_type,
-            "id"        : f"R-{hash(recipe_id)}",
+            "category"  : proper_id(recipe_type),
+            "id"        : recipe_id,
             "name"      : recipe_name,
-            "time"      : duration_multiplier,
+            "time"      : time,
             "row"       : 0,
-            "producers" : [recipe_type],
-            "in"        : inputs,
-            "out"       : outputs,
-            "icon"      : "dummy",
-            "iconText"  : "R",
-        } | optional)
+            "producers" : [proper_id(recipe_type)],
+            "in"        : item_ids(inputs),
+            "out"       : item_ids(outputs),
+            "icon"      : icon,
+            "iconText"  : icon_text,
+            "usage"     : floor(energy / time),
+        } | extra_cost)
+
+        if exclude:
+            recipe_data_out["defaults"]["excludedRecipes"].append(recipe_id)
+
+    def register_fluid(self, fluid):
+        self.fluids.add(fluid.replace(':', '__').replace('_', '-'))
 
     def _items(self, k):
         return set(x for recipe in self.recipes for x in recipe[k].keys())
+
+    def _is_fluid(self, item):
+        return item in self.fluids
 
     def write(self):
         inputs = self._items('in')
@@ -140,39 +172,75 @@ class RecipeList:
 
         recipe_data_out['recipes'] = self.recipes
 
+        name = lambda x: x.split('--')[-1].replace('-', '_')
+
+        def icon(item_id):
+            item = name(item_id)
+
+            if self._is_fluid(item_id):
+                return "advanced-oil-processing"
+            if item.endswith("_ore"):
+                return "stone"
+            if item.startswith("raw_"):
+                return "coal"
+            if item.endswith("_dust"):
+                return "iron-ore"
+            if item.endswith("_plate"):
+                return "steel-processing"
+            if item.endswith("_ingot"):
+                return "copper-plate"
+            if item.endswith("_battery"):
+                return "battery"
+            if item.endswith("_drill"):
+                return "electric-mining-drill"
+            if item.endswith("_gear"):
+                return "iron-gear-wheel"
+            if item.endswith("_wire"):
+                return "copper-cable"
+            if item.endswith("_cable"):
+                return "green-wire"
+            if "circuit" in item:
+                return "electronics"
+            if "_fuel_rod_depleted" in item:
+                return "used-up-uranium-fuel-cell"
+            if "_fuel_rod" in item:
+                return "uranium-fuel-cell"
+            if "_rod" in item:
+                return "iron-stick"
+            return "solid-fuel"
+
         recipe_data_out['items'] = list(({
             item : {
                 "id": item,
-                "name": item.split('__')[-1],
+                "name": name(item),
                 "category": "processed",
                 "stack": 64,
                 "row": 0,
-                "icon": "dummy",
-                "iconText": "I",
+                "icon": icon(item),
             } for item in (inputs | outputs)
         } | {
             machine : {
                 "id": machine,
-                "name": machine.split('__')[-1],
+                "name": name(machine),
                 "category": "machines",
                 "stack": 64,
                 "row": 0,
-                "icon": "dummy",
+                "icon": "assembling-machine-2",
                 "iconText": "M",
-                "machine": {"modules":False, "drain":0, "speed":20, "usage":0},
+                "machine": {"type":"electric", "modules":0, "speed":1},
             } for machine in categories
         }).values())
 
         recipe_data_out['categories'] = [
             {
                 "id": category,
-                "name": category.split('__')[-1],
-                "icon": "dummy",
+                "name": name(category),
+                "icon": "assembling-machine-1",
                 "iconText": "C",
             } for category in set(["processed"]) | categories
         ]
 
-        recipe_data_out['icons'] = [{"id": "dummy", "position": "0px 0px"}]
+        recipe_data_out['icons'] = icons
 
         with open('src/data/mcsi/data.json', 'w') as f:
             json.dump(recipe_data_out, f)
@@ -184,14 +252,13 @@ class RecipeList:
             invalid = set()
             for recipe in self.recipes:
                 if (set(recipe['in'].keys()) - outputs):
-                    print("REMOVED", recipe['out'], set(recipe['in'].keys()) - outputs)
+                    #dbg("REMOVED", recipe['out'], set(recipe['in'].keys()) - outputs)
                     invalid.add(recipe['id'])
 
             if not invalid:
                 break
 
             self.recipes = [recipe for recipe in self.recipes if recipe['id'] not in invalid]
-
 
 recipe_list = RecipeList()
 
@@ -212,7 +279,7 @@ tritium_hph_steam_out = 25450
 plutonium_production_ticks = ceil(4 / (6.822 / 20 / 60))
 
 recipe_list.add(
-    recipe_type="reactor",
+    recipe_type="modern_industrialization__nuclear_reactor",
     inputs={
         "modern_industrialization__high_pressure_water": ceil(deuterium_hp_water_in * deuterium_production_ticks),
         "modern_industrialization__le_mox_fuel_rod": 1,
@@ -223,10 +290,10 @@ recipe_list.add(
         "modern_industrialization__le_mox_fuel_rod_depleted": 1,
         "modern_industrialization__steam": 8 * deuterium_hp_steam_out * deuterium_production_ticks,
     },
-    duration_multiplier=deuterium_production_ticks
+    time=deuterium_production_ticks
 )
 recipe_list.add(
-    recipe_type="reactor",
+    recipe_type="modern_industrialization__nuclear_reactor",
     inputs={
         "modern_industrialization__high_pressure_heavy_water": ceil(tritium_hph_water_in * tritium_production_ticks),
         "modern_industrialization__le_mox_fuel_rod": 1,
@@ -237,13 +304,13 @@ recipe_list.add(
         "modern_industrialization__le_mox_fuel_rod_depleted": 1,
         "modern_industrialization__steam": 8 * tritium_hph_steam_out * tritium_production_ticks,
     },
-    duration_multiplier=tritium_production_ticks
+    time=tritium_production_ticks
 )
 recipe_list.add(
-    recipe_type="reactor",
+    recipe_type="modern_industrialization__nuclear_reactor",
     inputs={"modern_industrialization__uranium_fuel_rod_quad": 1},
     outputs={"modern_industrialization__uranium_fuel_rod_depleted": 4},
-    duration_multiplier=plutonium_production_ticks
+    time=plutonium_production_ticks
 )
 
 def fortune(input, output, m = 1 / (10 + 2) + (10 + 1) / 2):
@@ -251,8 +318,8 @@ def fortune(input, output, m = 1 / (10 + 2) + (10 + 1) / 2):
         recipe_type="fortune",
         inputs={input: 1},
         outputs={k:v*m for k,v in output.items()},
-        duration_multiplier=5,
-        optional={"cost": 100}
+        time=5,
+        exclude=True
     )
 
 fortune("minecraft__coal_ore",                        {"minecraft__coal":1})
@@ -286,7 +353,7 @@ fortune("modern_industrialization__iridium_ore", {"modern_industrialization__raw
 fortune("techreborn__ruby_ore",     {"techreborn__ruby":1.5, "techreborn__red_garnet":0.5})
 fortune("techreborn__sapphire_ore", {"techreborn__sapphire":1.5, "techreborn__peridot":0.5})
 fortune("techreborn__peridot_ore",  {"techreborn__peridot":1.5})
-fortune("techreborn__sodalite_ore", {"techreborn__sodalite_dust":1, "techreborn__aluminum_dust":0.5})
+#fortune("techreborn__sodalite_ore", {"techreborn__sodalite_dust":1, "techreborn__aluminum_dust":0.5})
 
 #=====[AUTOMATIC]====================================================
 
@@ -303,8 +370,8 @@ for recipe in recipe_data_in:
         result = recipe.get("result")
         for ingredient in ingredients:
             for item in (tag_items.get(ingredient.get("tag")) or {ingredient.get("item")}):
-                power = 2 * recipe.get('cookingtime', 200)
-                recipe_list.add(recipe_type="modern_industrialization__electric_furnace", inputs={item:1}, outputs={result:1}, power=power)
+                energy = 2 * recipe.get('cookingtime', 200)
+                recipe_list.add(recipe_type="modern_industrialization__electric_furnace", inputs={item:1}, outputs={result:1}, energy=energy)
 
     elif recipe['type'].split(':')[0] == "modern_industrialization":
         machine = recipe['type']
@@ -314,6 +381,9 @@ for recipe in recipe_data_in:
         fluid_inputs = _get('fluid_inputs')
         fluid_outputs = _get('fluid_outputs')
 
+        for x in fluid_inputs + fluid_outputs:
+            recipe_list.register_fluid(x.get("fluid"))
+
         amount_in = [x.get('amount', 0) * x.get('probability', 1) for x in item_inputs + fluid_inputs]
         amount_out = [x.get('amount', 0) * x.get('probability', 1) for x in item_outputs + fluid_outputs]
 
@@ -322,15 +392,20 @@ for recipe in recipe_data_in:
             amount_out
         )
 
-        power = recipe['duration'] * recipe['eu']
+        energy = recipe['duration'] * recipe['eu']
 
         for inputs in product(*[tag_items.get(x.get("tag")) or {x.get("item") or x.get("fluid")} for x in item_inputs + fluid_inputs]):
-            recipe_list.add(recipe_type=machine, inputs=sum_tuples_by_key(inputs, amount_in), outputs=outputs, power=power)
+            recipe_list.add(recipe_type=machine, inputs=sum_tuples_by_key(inputs, amount_in), outputs=outputs, energy=energy)
 
 #====================================================================
 
+before = len(recipe_list.recipes)
+print("parsed  ", before)
 recipe_list.simplify()
+print("removed ", before - len(recipe_list.recipes))
 recipe_list.write()
 
+'''
 for recipe in recipe_data_out['recipes']:
     pp(recipe)
+'''

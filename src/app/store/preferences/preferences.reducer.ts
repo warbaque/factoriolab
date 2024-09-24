@@ -43,6 +43,7 @@ export const initialPreferencesState: PreferencesState = {
     [Game.CaptainOfIndustry]: {},
     [Game.Techtonica]: {},
     [Game.FinalFactory]: {},
+    [Game.StatechIndustry]: {},
   },
   columns: initialColumnsState,
   language: Language.English,

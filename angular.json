@@ -110,7 +110,7 @@
                   "with": "src/environments/environment.staging.ts"
                 }
               ],
-              "baseHref": "/staging/",
+              "baseHref": "/temp/minecraft/factoriolab/",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
