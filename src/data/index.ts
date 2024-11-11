@@ -47,6 +47,11 @@ export const data: AppData = {
     { id: 'tta', name: 'Techtonica', game: Game.Techtonica },
     { id: 'ffy', name: 'Final Factory', game: Game.FinalFactory },
     { id: 'mcsi', name: 'Statech Industry', game: Game.StatechIndustry },
+    {
+      id: 'mcmi',
+      name: 'Modern Industrialization',
+      game: Game.ModernIndustrialization,
+    },
   ],
   v0: [
     '1.1',
@@ -115,5 +120,6 @@ export const data: AppData = {
     'utc',
     'ffy',
     'mcsi',
+    'mcmi',
   ],
 };

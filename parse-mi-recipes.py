@@ -15,7 +15,7 @@ from itertools import product
 from itertools import groupby
 import uuid
 
-datadir = "export/statech"
+datadir = "export/mi"
 
 def pp(data):
     print(highlight(json.dumps(data), JsonLexer(), TerminalFormatter()))
@@ -28,7 +28,7 @@ def sum_tuples_by_key(keys, values):
     return dict(d)
 
 with open("factorio_icons.json") as f:
-    icons = json.load(f);
+    icons = json.load(f)
 
 #=====[TAGS]=========================================================
 
@@ -86,7 +86,7 @@ recipe_data_in = [
 recipe_data_in = tar_iterator(f"{datadir}/recipes.tar.gz")
 
 recipe_data_out = {
-    'version'       : {"StatechIndustry":"1.13.0"},
+    'version'       : {"ModernIndustrialization":"2.2.25"},
     'categories'    : [],
     'icons'         : [],
     'items'         : [],
@@ -243,7 +243,7 @@ class RecipeList:
 
         recipe_data_out['icons'] = icons
 
-        with open('src/data/mcsi/data.json', 'w') as f:
+        with open('src/data/mcmi/data.json', 'w') as f:
             json.dump(recipe_data_out, f)
 
     def simplify(self):
@@ -265,7 +265,7 @@ recipe_list = RecipeList()
 
 #=====[HARDCODED]====================================================
 
-recipe_list.add(recipe_type="raw", inputs={}, outputs={"ae2__certus_quartz_crystal":1})
+# recipe_list.add(recipe_type="raw", inputs={}, outputs={"ae2__certus_quartz_crystal":1})
 
 deuterium_production = 163.9
 deuterium_production_ticks = ceil(1 / (1.711 / 20 / 60))
@@ -323,6 +323,7 @@ def fortune(input, output, m = 1 / (10 + 2) + (10 + 1) / 2):
         exclude=True
     )
 
+'''
 fortune("minecraft__coal_ore",                        {"minecraft__coal":1})
 fortune("minecraft__iron_ore",                        {"minecraft__raw_iron":1})
 fortune("minecraft__copper_ore",                      {"minecraft__raw_copper":3.5})
@@ -355,6 +356,7 @@ fortune("techreborn__ruby_ore",     {"techreborn__ruby":1.5, "techreborn__red_ga
 fortune("techreborn__sapphire_ore", {"techreborn__sapphire":1.5, "techreborn__peridot":0.5})
 fortune("techreborn__peridot_ore",  {"techreborn__peridot":1.5})
 #fortune("techreborn__sodalite_ore", {"techreborn__sodalite_dust":1, "techreborn__aluminum_dust":0.5})
+'''
 
 #=====[AUTOMATIC]====================================================
 
@@ -372,7 +374,7 @@ for recipe in recipe_data_in:
         for ingredient in ingredients:
             for item in (tag_items.get(ingredient.get("tag")) or {ingredient.get("item")}):
                 energy = 2 * recipe.get('cookingtime', 200)
-                recipe_list.add(recipe_type="modern_industrialization__electric_furnace", inputs={item:1}, outputs={result:1}, energy=energy)
+                recipe_list.add(recipe_type="modern_industrialization__electric_furnace", inputs={item:1}, outputs={result['id']:result.get('count',1)}, energy=energy)
 
     elif recipe['type'].split(':')[0] == "modern_industrialization":
         machine = recipe['type']

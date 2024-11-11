@@ -69,4 +69,12 @@ export const gameInfo: Record<Game, GameInfo> = {
     modId: 'mcsi',
     hideColumns: ['beacons', 'belts', 'wagons', 'pollution'],
   },
+  [Game.ModernIndustrialization]: {
+    icon: 'modern-industrialization',
+    route: 'modern-industrialization',
+    label: 'options.game.modernIndustrialization',
+    meta: 'Modern Industrialization',
+    modId: 'mcmi',
+    hideColumns: ['beacons', 'belts', 'wagons', 'pollution'],
+  },
 };

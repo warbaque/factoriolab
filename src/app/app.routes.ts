@@ -51,6 +51,10 @@ export const routes: Routes = [
     redirectTo: '/?s=mcsi&v=9',
   },
   {
+    path: 'minecraft-modern-industrialization',
+    redirectTo: '/?s=mcmi&v=9',
+  },
+  {
     path: '**',
     redirectTo: '',
   },
