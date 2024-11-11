@@ -15,6 +15,7 @@ from itertools import product
 from itertools import groupby
 import uuid
 
+datadir = "export/statech"
 
 def pp(data):
     print(highlight(json.dumps(data), JsonLexer(), TerminalFormatter()))
@@ -33,7 +34,7 @@ with open("factorio_icons.json") as f:
 
 tag_items = defaultdict(set)
 pattern = re.compile(r"local/kubejs/export/tags/minecraft/item/(.*)\.json")
-with tarfile.open("tags.tar.gz") as tar:
+with tarfile.open(f"{datadir}/tags.tar.gz") as tar:
     for member in tar.getmembers():
         if member.isfile():
             tag = pattern.match(member.name).group(1).replace("/", ":", 1)
@@ -82,7 +83,7 @@ recipe_data_in = [
         "item_outputs": [{"item": "modern_industrialization:a", "amount": 2}]
     },
 ]
-recipe_data_in = tar_iterator("recipes.tar.gz")
+recipe_data_in = tar_iterator(f"{datadir}/recipes.tar.gz")
 
 recipe_data_out = {
     'version'       : {"StatechIndustry":"1.13.0"},
